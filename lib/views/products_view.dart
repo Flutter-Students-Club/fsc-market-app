@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:market_app/models/basket_model.dart';
 import 'package:market_app/models/category_model.dart';
 import 'package:market_app/models/product_model.dart';
 import 'package:market_app/theme/custom_theme.dart';
-import 'package:market_app/views/basket_view.dart';
+import 'package:market_app/views/shopping_basket_view.dart';
 import 'package:market_app/widgets/app_build_grid.dart';
 import 'package:market_app/widgets/app_product_card_widget.dart';
-import '../extensions/context_extensions.dart';
+import '../models/basket_model.dart';
 
 class ProductsView extends StatelessWidget {
   final int initialIndex;
   const ProductsView({Key key, this.initialIndex = 0}) : super(key: key);
-  final double _radius = 12;
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -26,7 +24,7 @@ class ProductsView extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        BasketView(),
+                        ShoppingBasketView(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       var begin = Offset(0.0, 1.0);
@@ -34,58 +32,54 @@ class ProductsView extends StatelessWidget {
                       var tween = Tween(begin: begin, end: end);
                       var offsetAnimation = animation.drive(tween);
                       return SlideTransition(
-                          position: offsetAnimation, child: child);
+                        position: offsetAnimation,
+                        child: child,
+                      );
                     },
                   ));
                 },
                 child: Center(
                   child: Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: appDefaultPadding),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
                     height: 35,
-                    width: MediaQuery.of(context).size.width * .25,
+                    width: 100,
                     child: LayoutBuilder(builder: (context, constraints) {
                       print(constraints);
                       return Stack(
                         children: [
                           AnimatedBuilder(
-                              animation: Basket.instance,
+                              animation: ShoppingBasket.instance,
                               builder: (_, __) {
                                 return AnimatedPositioned(
-                                  right: Basket.instance.cardPosition,
-                                  duration: kThemeAnimationDuration,
+                                  duration: kThemeChangeDuration,
+                                  right: ShoppingBasket.instance.cardPosition,
                                   child: ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.circular(_radius),
-                                    child: Container(
-                                      width: constraints.maxWidth,
-                                      height: constraints.maxHeight,
-                                      child: Row(
-                                        children: [
-                                          AnimatedContainer(
-                                              duration: kThemeAnimationDuration,
-                                              color: Colors.white,
-                                              height: constraints.maxHeight,
-                                              width: constraints.maxWidth *
-                                                  Basket.instance.iconWidth,
-                                              child: Icon(Icons.shopping_bag,
-                                                  color: Theme.of(context)
-                                                      .primaryColor)),
-                                          AnimatedContainer(
-                                            duration: kThemeAnimationDuration,
-                                            alignment: Alignment.center,
-                                            height: constraints.maxHeight,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Row(
+                                      children: [
+                                        AnimatedContainer(
+                                          duration: kThemeChangeDuration,
+                                          color: Colors.white,
+                                          height: constraints.maxHeight,
+                                          width: constraints.maxWidth *
+                                              ShoppingBasket.instance.iconWidth,
+                                          child: Icon(Icons.shopping_bag,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                        ),
+                                        AnimatedContainer(
+                                            duration: kThemeChangeDuration,
                                             color: Color(0xffdedede),
+                                            height: constraints.maxHeight,
                                             width: constraints.maxWidth *
-                                                Basket.instance
-                                                    .totalPriceInfoWidth,
-                                            child: Text(
-                                                '€${Basket.instance.totalPrice}',
-                                                style: context
-                                                    .textTheme.headline6),
-                                          ),
-                                        ],
-                                      ),
+                                                ShoppingBasket
+                                                    .instance.priceInfoWidth,
+                                            child: Center(
+                                                child: Text(
+                                              '€${ShoppingBasket.instance.totalPrice}',
+                                              style: TextStyle(fontSize: 18),
+                                            ))),
+                                      ],
                                     ),
                                   ),
                                 );

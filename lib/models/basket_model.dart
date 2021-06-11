@@ -8,74 +8,78 @@ class BasketModel {
   BasketModel({@required this.product, this.quantity});
 }
 
-class Basket extends ChangeNotifier {
-  Basket._privateConstructor();
-  static final Basket _instance = Basket._privateConstructor();
-  static Basket get instance => _instance;
+class ShoppingBasket extends ChangeNotifier {
+  ShoppingBasket._privateConstructor();
+  static final ShoppingBasket _instance = ShoppingBasket._privateConstructor();
+  static ShoppingBasket get instance => _instance;
 
-  double _cardPosition = -200;
+  double _cardPosition = -100;
   double get cardPosition => _cardPosition;
-  double _iconWidth = .3;
-  double _totalPriceInfoWidth = .7;
-  double get iconWidth => _iconWidth;
-  double get totalPriceInfoWidth => _totalPriceInfoWidth;
 
-  double _totalPrice = 0;
+  double _iconWidth = .3;
+  double _priceInfoWidth = .7;
+
+  double get iconWidth => _iconWidth;
+  double get priceInfoWidth => _priceInfoWidth;
+
+  double _totalPrice = 0.0;
   double get totalPrice => _totalPrice;
 
-  List<BasketModel> _orders = [];
-  List<BasketModel> get orders => _orders;
+  List<BasketModel> orders = [];
 
   void addToBasket(ProductModel product) {
-    final exist = this._orders.firstWhere(
+    BasketModel result = this.orders.firstWhere(
         (order) => order.product.name == product.name,
         orElse: () => null);
-    _updatePositions();
-    if (exist == null) {
-      this._orders.add(BasketModel(product: product, quantity: 1));
-    } else {
-      exist.quantity++;
-    }
-    _updateTotalPrice();
-    notifyListeners();
-  }
 
-  String totalQuantityOfProduct(ProductModel product) {
-    BasketModel currentProduct = this._orders.firstWhere(
-        (order) => order.product.name == product.name,
-        orElse: () => null);
-    return currentProduct != null ? currentProduct.quantity.toString() : '0';
+    if (result == null) {
+      _cardPosition = 0;
+      this.orders.add(BasketModel(product: product, quantity: 1));
+    } else {
+      _updateCardPosition();
+      result.quantity++;
+    }
+    _updatePrice();
+    notifyListeners();
   }
 
   void removeFromBasket(ProductModel product) {
-    final BasketModel currentProduct =
-        this._orders.firstWhere((order) => order.product.name == product.name);
-    _updatePositions();
-    if (currentProduct.quantity != 1) {
-      currentProduct.quantity--;
-    } else {
-      this.orders.remove(currentProduct);
+    BasketModel result = this.orders.firstWhere(
+        (order) => order.product.name == product.name,
+        orElse: () => null);
+    if (result != null) {
+      if (result.quantity > 1) {
+        result.quantity--;
+      } else {
+        this.orders.remove(result);
+      }
     }
-    _updateTotalPrice();
+    _updateCardPosition();
+    _updatePrice();
     notifyListeners();
   }
 
-  void _updatePositions() {
-    if (this.orders.length == 0) {
-      _cardPosition = 0;
-    } else {
-      _totalPriceInfoWidth = 0;
-      _iconWidth = 1;
-      Future.delayed(Duration(milliseconds: 500)).then((_) {
-        _totalPriceInfoWidth = .7;
-        _iconWidth = .3;
-        notifyListeners();
-      });
-    }
+  String quantityOfProduct(ProductModel product) {
+    BasketModel result = this.orders.firstWhere(
+        (order) => order.product.name == product.name,
+        orElse: () => null);
+    return result != null ? result.quantity.toString() : '0';
   }
 
-  void _updateTotalPrice() {
-    this._totalPrice = this.orders.fold(
-        0, (total, order) => total += order.quantity * order.product.price);
+  void _updatePrice() {
+    print(this.orders.length);
+    _totalPrice = this.orders.fold(
+        0, (current, order) => current + order.product.price * order.quantity);
+    print(_totalPrice);
+  }
+
+  void _updateCardPosition() {
+    _iconWidth = 1;
+    _priceInfoWidth = 0;
+    Future.delayed(Duration(milliseconds: 500)).then((value) {
+      _iconWidth = .3;
+      _priceInfoWidth = .7;
+      notifyListeners();
+    });
   }
 }

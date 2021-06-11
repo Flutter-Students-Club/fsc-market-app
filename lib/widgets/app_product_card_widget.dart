@@ -22,12 +22,11 @@ class _AppProductCardWidgetState extends State<AppProductCardWidget> {
 
   void _addToBasket() {
     _activeCard();
-    Basket.instance.addToBasket(widget.product);
+    ShoppingBasket.instance.addToBasket(widget.product);
   }
 
   void _removeFromBasket() {
-    _activeCard();
-    Basket.instance.removeFromBasket(widget.product);
+    ShoppingBasket.instance.removeFromBasket(widget.product);
   }
 
   @override
@@ -86,12 +85,11 @@ class _AppProductCardWidgetState extends State<AppProductCardWidget> {
                         child: Column(
                           children: [
                             AnimatedBuilder(
-                                animation: Basket.instance,
-                                builder: (_, __) {
+                                animation: ShoppingBasket.instance,
+                                builder: (context, snapshot) {
                                   return AppQuantityWidget(
-                                      quantity: Basket.instance
-                                          .totalQuantityOfProduct(
-                                              widget.product));
+                                      quantity: ShoppingBasket.instance
+                                          .quantityOfProduct(widget.product));
                                 }),
                             AppRemoveBasket(onTap: _removeFromBasket),
                           ],
